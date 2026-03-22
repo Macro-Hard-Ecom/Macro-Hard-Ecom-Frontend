@@ -23,7 +23,6 @@ export const router = createBrowserRouter([
       { path: 'products', Component: Products },
       { path: 'products/:id', Component: ProductDetail },
       { path: 'sell', Component: Sell },
-      { path: 'cart', Component: () => <div className="p-8 text-center text-gray-500">Cart coming soon</div> },
       { path: '*', Component: () => <div className="p-8 text-center text-gray-500">Page not found</div> },
       { path: 'cart', Component: Cart },
       { path: 'orders', Component: Orders },
