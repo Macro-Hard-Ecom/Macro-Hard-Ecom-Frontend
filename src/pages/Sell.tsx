@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router';
-import { Plus, Pencil, Trash2, Package, X, Check, AlertTriangle, LayoutDashboard } from 'lucide-react';
+import { Plus, Pencil, Trash2, Package, X, Check, AlertTriangle, LayoutDashboard, ShoppingBag, TrendingUp } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
 import { Input } from '../components/ui/input';
@@ -12,14 +12,23 @@ import { useAuth } from '../lib/auth';
 import { toast } from 'sonner';
 
 const CATEGORY_COLORS: Record<string, string> = {
-  Burgers: '#e81123',
-  Pizza: '#ffb900',
-  Chicken: '#00a651',
-  Beverages: '#0078d4',
-  Desserts: '#e81123',
-  Sides: '#ffb900',
+  Electronics: '#0078d4',
+  Vehicles: '#e81123',
+  Property: '#00a651',
+  Furniture: '#ffb900',
+  Fashion: '#e81123',
+  Services: '#0078d4',
+  'Food & Beverages': '#00a651',
+  'Sports & Leisure': '#ffb900',
   Other: '#0078d4',
 };
+
+// ── Types ─────────────────────────────────────────────────────────────────────
+interface ProductStats {
+  orderCount: number;
+  totalRevenue: number;
+  orderServiceAvailable: boolean;
+}
 
 // ── Product Form Modal ────────────────────────────────────────────────────────
 interface ProductFormProps {
@@ -34,7 +43,7 @@ function ProductForm({ initial, onSubmit, onClose, mode }: ProductFormProps) {
     name: initial?.name ?? '',
     description: initial?.description ?? '',
     price: initial?.price ?? 0,
-    category: initial?.category ?? 'Burgers',
+    category: initial?.category ?? 'Electronics',
     imageUrl: initial?.imageUrl ?? '',
     stock: initial?.stock ?? 0,
   });
@@ -72,7 +81,6 @@ function ProductForm({ initial, onSubmit, onClose, mode }: ProductFormProps) {
         className="relative bg-white w-full max-w-lg shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
         <div className="bg-gray-900 text-white p-6 flex items-center justify-between">
           <div>
             <div className="inline-flex gap-1.5 mb-2">
@@ -82,7 +90,7 @@ function ProductForm({ initial, onSubmit, onClose, mode }: ProductFormProps) {
               <div className="w-2.5 h-2.5 bg-[#e81123]"></div>
             </div>
             <h2 className="text-xl font-black tracking-tight">
-              {mode === 'add' ? 'ADD NEW PRODUCT' : 'EDIT PRODUCT'}
+              {mode === 'add' ? 'ADD NEW LISTING' : 'EDIT LISTING'}
             </h2>
           </div>
           <button onClick={onClose} className="hover:bg-white/10 p-2 transition-colors">
@@ -93,7 +101,7 @@ function ProductForm({ initial, onSubmit, onClose, mode }: ProductFormProps) {
         <form onSubmit={handleSubmit} className="p-6 space-y-5">
           <div>
             <Label htmlFor="name" className="font-bold text-gray-700 text-xs uppercase tracking-wider">
-              Product Name *
+              Title *
             </Label>
             <Input
               id="name"
@@ -138,7 +146,7 @@ function ProductForm({ initial, onSubmit, onClose, mode }: ProductFormProps) {
             </div>
             <div>
               <Label htmlFor="stock" className="font-bold text-gray-700 text-xs uppercase tracking-wider">
-                Stock
+                Quantity
               </Label>
               <Input
                 id="stock"
@@ -155,16 +163,16 @@ function ProductForm({ initial, onSubmit, onClose, mode }: ProductFormProps) {
             <Label className="font-bold text-gray-700 text-xs uppercase tracking-wider">
               Category *
             </Label>
-            <div className="mt-1.5 grid grid-cols-4 gap-2">
+            <div className="mt-1.5 grid grid-cols-3 gap-2">
               {CATEGORIES.map((cat) => (
                 <button
                   key={cat}
                   type="button"
                   onClick={() => set('category', cat)}
-                  className="py-2 text-xs font-bold transition-all border-2"
+                  className="py-2 px-1 text-xs font-bold transition-all border-2 leading-tight"
                   style={
                     form.category === cat
-                      ? { backgroundColor: CATEGORY_COLORS[cat], color: '#fff', borderColor: CATEGORY_COLORS[cat] }
+                      ? { backgroundColor: CATEGORY_COLORS[cat] ?? '#0078d4', color: '#fff', borderColor: CATEGORY_COLORS[cat] ?? '#0078d4' }
                       : { backgroundColor: '#fff', color: '#374151', borderColor: '#e5e7eb' }
                   }
                 >
@@ -196,7 +204,7 @@ function ProductForm({ initial, onSubmit, onClose, mode }: ProductFormProps) {
               {submitting ? 'SAVING...' : (
                 <>
                   <Check className="mr-2 h-4 w-4" />
-                  {mode === 'add' ? 'ADD PRODUCT' : 'SAVE CHANGES'}
+                  {mode === 'add' ? 'POST LISTING' : 'SAVE CHANGES'}
                 </>
               )}
             </Button>
@@ -225,7 +233,7 @@ function ConfirmDeleteModal({ productName, onConfirm, onClose }: { productName: 
         <div className="bg-[#e81123] w-16 h-16 flex items-center justify-center mx-auto mb-5 shadow-lg">
           <AlertTriangle className="h-8 w-8 text-white" />
         </div>
-        <h3 className="text-xl font-black text-gray-900 mb-2">DELETE PRODUCT?</h3>
+        <h3 className="text-xl font-black text-gray-900 mb-2">DELETE LISTING?</h3>
         <p className="text-gray-600 mb-6 text-sm">
           <strong className="text-gray-900">"{productName}"</strong> will be permanently removed. This cannot be undone.
         </p>
@@ -246,6 +254,7 @@ function ConfirmDeleteModal({ productName, onConfirm, onClose }: { productName: 
 export function Sell() {
   const { user, isAuthenticated } = useAuth();
   const [products, setProducts] = useState<Product[]>([]);
+  const [statsMap, setStatsMap] = useState<Record<string, ProductStats>>({});
   const [loading, setLoading] = useState(true);
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
@@ -260,22 +269,46 @@ export function Sell() {
     setLoading(true);
     try {
       const res = await productService.getAll({ createdBy: user?.id });
-      setProducts(res.data.data);
+      const prods = res.data.data;
+      setProducts(prods);
+      // Fetch order stats for all products in parallel — non-blocking
+      fetchAllStats(prods);
     } catch {
-      toast.error('Failed to load your products');
+      toast.error('Failed to load your listings');
     } finally {
       setLoading(false);
     }
   };
 
+  // Calls GET /api/products/:id/stats for each product in parallel.
+  // Product Service handles the Order Service call internally.
+  // Uses Promise.allSettled so one failure doesn't block the rest.
+  const fetchAllStats = async (prods: Product[]) => {
+    if (prods.length === 0) return;
+    const results = await Promise.allSettled(
+      prods.map((p) => productService.getStats(p._id))
+    );
+    const map: Record<string, ProductStats> = {};
+    results.forEach((result, i) => {
+      if (result.status === 'fulfilled') {
+        const { orderStats } = result.value.data.data;
+        map[prods[i]._id] = orderStats;
+      } else {
+        // Order Service unavailable for this product — show zeros
+        map[prods[i]._id] = { orderCount: 0, totalRevenue: 0, orderServiceAvailable: false };
+      }
+    });
+    setStatsMap(map);
+  };
+
   const handleAdd = async (data: ProductInput) => {
     try {
       await productService.create(data);
-      toast.success('Product added successfully!');
+      toast.success('Listing posted successfully!');
       setShowAddForm(false);
       fetchMyProducts();
     } catch (err: unknown) {
-      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Failed to add product';
+      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Failed to add listing';
       toast.error(msg);
     }
   };
@@ -284,11 +317,11 @@ export function Sell() {
     if (!editingProduct) return;
     try {
       await productService.update(editingProduct._id, data);
-      toast.success('Product updated!');
+      toast.success('Listing updated!');
       setEditingProduct(null);
       fetchMyProducts();
     } catch (err: unknown) {
-      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Failed to update product';
+      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Failed to update listing';
       toast.error(msg);
     }
   };
@@ -297,11 +330,11 @@ export function Sell() {
     if (!deletingProduct) return;
     try {
       await productService.delete(deletingProduct._id);
-      toast.success('Product deleted');
+      toast.success('Listing deleted');
       setDeletingProduct(null);
       fetchMyProducts();
     } catch (err: unknown) {
-      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Failed to delete product';
+      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Failed to delete listing';
       toast.error(msg);
     }
   };
@@ -342,9 +375,11 @@ export function Sell() {
     );
   }
 
-  // ── Stats summary ─────────────────────────────────────────────────────────
+  // ── Aggregate stats across all products ───────────────────────────────────
   const totalStock = products.reduce((sum, p) => sum + p.stock, 0);
   const available = products.filter((p) => p.isAvailable).length;
+  const totalOrders = Object.values(statsMap).reduce((sum, s) => sum + s.orderCount, 0);
+  const totalRevenue = Object.values(statsMap).reduce((sum, s) => sum + s.totalRevenue, 0);
 
   return (
     <div>
@@ -371,7 +406,7 @@ export function Sell() {
                 <h1 className="text-4xl font-black tracking-tight">SELLER DASHBOARD</h1>
               </div>
               <p className="text-gray-400 font-medium">
-                Managing products for <span className="text-white font-bold">{user?.email}</span>
+                Managing listings for <span className="text-white font-bold">{user?.email}</span>
               </p>
             </div>
             <Button
@@ -380,27 +415,28 @@ export function Sell() {
               className="bg-[#00a651] hover:bg-[#008a44] text-white font-black px-8 h-12 shadow-lg"
             >
               <Plus className="mr-2 h-5 w-5" />
-              ADD PRODUCT
+              POST LISTING
             </Button>
           </div>
 
-          {/* Stats row */}
+          {/* Stats row — product counts + order stats from Order Service */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
             <div className="bg-white/5 border border-white/10 p-5">
               <div className="text-3xl font-black text-white">{products.length}</div>
-              <div className="text-xs text-gray-400 font-semibold mt-1">TOTAL PRODUCTS</div>
+              <div className="text-xs text-gray-400 font-semibold mt-1">TOTAL LISTINGS</div>
             </div>
             <div className="bg-white/5 border border-white/10 p-5">
               <div className="text-3xl font-black text-[#00a651]">{available}</div>
               <div className="text-xs text-gray-400 font-semibold mt-1">AVAILABLE</div>
             </div>
+            {/* Live from Order Service */}
             <div className="bg-white/5 border border-white/10 p-5">
-              <div className="text-3xl font-black text-[#ffb900]">{totalStock}</div>
-              <div className="text-xs text-gray-400 font-semibold mt-1">TOTAL STOCK</div>
+              <div className="text-3xl font-black text-[#ffb900]">{totalOrders}</div>
+              <div className="text-xs text-gray-400 font-semibold mt-1">TOTAL ORDERS</div>
             </div>
             <div className="bg-white/5 border border-white/10 p-5">
-              <div className="text-3xl font-black text-[#e81123]">{products.length - available}</div>
-              <div className="text-xs text-gray-400 font-semibold mt-1">UNAVAILABLE</div>
+              <div className="text-3xl font-black text-[#00a651]">${totalRevenue.toFixed(2)}</div>
+              <div className="text-xs text-gray-400 font-semibold mt-1">TOTAL REVENUE</div>
             </div>
           </div>
         </div>
@@ -417,6 +453,7 @@ export function Sell() {
                   <div className="p-5 space-y-3">
                     <div className="h-4 bg-gray-200 rounded w-3/4" />
                     <div className="h-4 bg-gray-200 rounded w-1/2" />
+                    <div className="h-8 bg-gray-200 rounded" />
                   </div>
                 </div>
               ))}
@@ -447,7 +484,8 @@ export function Sell() {
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {products.map((product, index) => {
-                  const accentColor = CATEGORY_COLORS[product.category] || '#0078d4';
+                  const accentColor = CATEGORY_COLORS[product.category] ?? '#0078d4';
+                  const stats = statsMap[product._id];
                   return (
                     <motion.div
                       key={product._id}
@@ -459,10 +497,10 @@ export function Sell() {
                         <div className="h-1.5" style={{ backgroundColor: accentColor }} />
                         <div className="relative">
                           <img
-                            src={product.imageUrl || `https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400`}
+                            src={product.imageUrl || 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400'}
                             alt={product.name}
                             className="w-full h-44 object-cover"
-                            onError={(e) => { (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400'; }}
+                            onError={(e) => { (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400'; }}
                           />
                           <div className="absolute top-3 left-3">
                             <span className="text-white text-xs font-black px-2 py-1" style={{ backgroundColor: accentColor }}>
@@ -480,10 +518,34 @@ export function Sell() {
                         <CardContent className="p-5">
                           <h3 className="font-black text-gray-900 mb-1 text-base leading-tight">{product.name}</h3>
                           <p className="text-gray-500 text-xs mb-3 line-clamp-2">{product.description}</p>
-                          <div className="flex items-center justify-between mb-4">
+
+                          <div className="flex items-center justify-between mb-3">
                             <p className="font-black text-xl" style={{ color: accentColor }}>${product.price.toFixed(2)}</p>
                             <span className="text-gray-400 text-xs font-semibold">{product.stock} in stock</span>
                           </div>
+
+                          {/* Order stats from Order Service */}
+                          <div className="grid grid-cols-2 gap-2 mb-4 p-3 bg-gray-50 border border-gray-100">
+                            <div className="flex items-center gap-1.5">
+                              <ShoppingBag className="h-3.5 w-3.5 text-[#0078d4]" />
+                              <div>
+                                <div className="text-sm font-black text-gray-900">
+                                  {stats ? stats.orderCount : <span className="text-gray-300 animate-pulse">—</span>}
+                                </div>
+                                <div className="text-[10px] text-gray-400 font-semibold uppercase">Orders</div>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-1.5">
+                              <TrendingUp className="h-3.5 w-3.5 text-[#00a651]" />
+                              <div>
+                                <div className="text-sm font-black text-gray-900">
+                                  {stats ? `$${stats.totalRevenue.toFixed(2)}` : <span className="text-gray-300 animate-pulse">—</span>}
+                                </div>
+                                <div className="text-[10px] text-gray-400 font-semibold uppercase">Revenue</div>
+                              </div>
+                            </div>
+                          </div>
+
                           <div className="flex gap-2">
                             <Button
                               size="sm"
