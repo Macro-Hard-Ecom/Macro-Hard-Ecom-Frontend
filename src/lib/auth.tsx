@@ -28,8 +28,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (email: string, password: string) => {
     const res = await userService.login(email, password);
-    const { token: newToken, userId, email: userEmail } = res.data;
-    const authUser: AuthUser = { id: userId, email: userEmail };
+    const { token: newToken, id, email: userEmail, name: userName } = res.data;
+    const authUser: AuthUser = { id: id.toString(), email: userEmail, name: userName };
     setUser(authUser);
     setToken(newToken);
     localStorage.setItem('token', newToken);
@@ -38,8 +38,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const register = async (name: string, email: string, password: string) => {
     const res = await userService.register(name, email, password);
-    const { token: newToken, userId, email: userEmail } = res.data;
-    const authUser: AuthUser = { id: userId, email: userEmail, name };
+    const { token: newToken, id, email: userEmail, name: userName } = res.data;
+    const authUser: AuthUser = { id: id.toString(), email: userEmail, name: userName || name };
     setUser(authUser);
     setToken(newToken);
     localStorage.setItem('token', newToken);
