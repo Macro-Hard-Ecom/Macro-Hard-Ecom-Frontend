@@ -17,6 +17,15 @@ productApi.interceptors.request.use((config) => {
   return config;
 });
 
+// Attach JWT token to every user service request if present
+userApi.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
 // ── Types ─────────────────────────────────────────────────────────────────────
 export interface Product {
   _id: string;
@@ -42,9 +51,18 @@ export interface ProductInput {
 }
 
 export interface AuthUser {
-  id: string;
+  id: number;
   email: string;
   name?: string;
+  role: string;
+}
+
+export interface UserProfile {
+  id: number;
+  name: string;
+  email: string;
+  role: string;
+  totalListings: number;
 }
 
 // ── Product Service API calls ─────────────────────────────────────────────────
@@ -78,6 +96,9 @@ export const userService = {
 
   validateToken: (token: string) =>
     userApi.get<boolean>(`/api/auth/validateToken?token=${token}`),
+
+  getProfile: (id: number) =>
+    userApi.get<UserProfile>(`/api/users/${id}/profile`),
 };
 
 export const CATEGORIES = [

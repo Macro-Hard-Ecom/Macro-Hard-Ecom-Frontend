@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
+import { createContext, useContext, useState, type ReactNode } from 'react';
 import { userService, type AuthUser } from './api';
 
 interface AuthContextType {
@@ -13,23 +13,19 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<AuthUser | null>(null);
+  // Restore user from localStorage on mount
+  const [user, setUser] = useState<AuthUser | null>(() => {
+    const saved = localStorage.getItem('user');
+    return saved ? JSON.parse(saved) : null;
+  });
   const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
 
-  // Restore user from localStorage on mount
-  useEffect(() => {
-    const savedUser = localStorage.getItem('user');
-    const savedToken = localStorage.getItem('token');
-    if (savedUser && savedToken) {
-      setUser(JSON.parse(savedUser));
-      setToken(savedToken);
-    }
-  }, []);
-
   const login = async (email: string, password: string) => {
+    console.log('Attempting login with:', { email, password });
     const res = await userService.login(email, password);
-    const { token: newToken, id, email: userEmail, name: userName } = res.data;
-    const authUser: AuthUser = { id: id.toString(), email: userEmail, name: userName };
+    console.log('Login response:', res.data);
+    const { id, token: newToken, name, email: userEmail, role } = res.data;
+    const authUser: AuthUser = { id, email: userEmail, name, role };
     setUser(authUser);
     setToken(newToken);
     localStorage.setItem('token', newToken);
@@ -38,12 +34,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const register = async (name: string, email: string, password: string) => {
     const res = await userService.register(name, email, password);
-    const { token: newToken, id, email: userEmail, name: userName } = res.data;
-    const authUser: AuthUser = { id: id.toString(), email: userEmail, name: userName || name };
+    const { id, token: newToken, name: userName, email: userEmail, role: userRole } = res.data;
+    const authUser: AuthUser = { id, email: userEmail, name: userName, role: userRole };
     setUser(authUser);
     setToken(newToken);
     localStorage.setItem('token', newToken);
-    localStorage.setItem('user', JSON.stringify(authUser));
+    localStorage.setItem('user', JSON.stringify(authUser)); 
   };
 
   const logout = () => {
