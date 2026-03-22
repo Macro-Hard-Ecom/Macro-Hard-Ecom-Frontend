@@ -13,18 +13,12 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<AuthUser | null>(null);
-  const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
-
   // Restore user from localStorage on mount
-  // useEffect(() => {
-  //   const savedUser = localStorage.getItem('user');
-  //   const savedToken = localStorage.getItem('token');
-  //   if (savedUser && savedToken) {
-  //     setUser(JSON.parse(savedUser));
-  //     setToken(savedToken);
-  //   }
-  // }, []);
+  const [user, setUser] = useState<AuthUser | null>(() => {
+    const saved = localStorage.getItem('user');
+    return saved ? JSON.parse(saved) : null;
+  });
+  const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
 
   const login = async (email: string, password: string) => {
     console.log('Attempting login with:', { email, password });
