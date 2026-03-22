@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router';
-import { LogIn } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Input } from '../components/ui/input';
@@ -8,26 +8,36 @@ import { Label } from '../components/ui/label';
 import { useAuth } from '../lib/auth';
 import { toast } from 'sonner';
 
-export function Login() {
+export function Register() {
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirm, setConfirm] = useState('');
   const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
+  const { register } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !password) {
+    if (!name || !email || !password) {
       toast.error('Please fill in all fields');
+      return;
+    }
+    if (password !== confirm) {
+      toast.error('Passwords do not match');
+      return;
+    }
+    if (password.length < 6) {
+      toast.error('Password must be at least 6 characters');
       return;
     }
     setLoading(true);
     try {
-      await login(email, password);
-      toast.success('Welcome back!');
+      await register(name, email, password);
+      toast.success('Account created! Welcome to Macrohard.');
       navigate('/sell');
     } catch (err: unknown) {
-      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Invalid email or password';
+      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Registration failed. Please try again.';
       toast.error(msg);
     } finally {
       setLoading(false);
@@ -45,8 +55,8 @@ export function Login() {
             <div className="bg-[#ffb900]"></div>
             <div className="bg-[#e81123]"></div>
           </div>
-          <h1 className="text-3xl font-black text-gray-900 mb-2 tracking-tight">WELCOME BACK</h1>
-          <p className="text-gray-600">Sign in to your Macrohard account</p>
+          <h1 className="text-3xl font-black text-gray-900 mb-2 tracking-tight">CREATE ACCOUNT</h1>
+          <p className="text-gray-600">Join the Macrohard marketplace — buy and sell anything</p>
         </div>
 
         <Card className="border-0 shadow-xl overflow-hidden">
@@ -57,10 +67,24 @@ export function Login() {
             <div className="bg-[#e81123]"></div>
           </div>
           <CardHeader className="pb-2">
-            <CardTitle className="text-xl font-black text-gray-900">Sign In</CardTitle>
+            <CardTitle className="text-xl font-black text-gray-900">Sign Up</CardTitle>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <Label htmlFor="name" className="font-bold text-gray-700 text-xs uppercase tracking-wider">
+                  Full Name / Business Name
+                </Label>
+                <Input
+                  id="name"
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="e.g. John Silva or Silva Electronics"
+                  className="mt-1.5 border-2 border-gray-200 focus:border-[#0078d4] h-11"
+                  required
+                />
+              </div>
               <div>
                 <Label htmlFor="email" className="font-bold text-gray-700 text-xs uppercase tracking-wider">
                   Email Address
@@ -84,7 +108,21 @@ export function Login() {
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
+                  placeholder="Min. 6 characters"
+                  className="mt-1.5 border-2 border-gray-200 focus:border-[#0078d4] h-11"
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="confirm" className="font-bold text-gray-700 text-xs uppercase tracking-wider">
+                  Confirm Password
+                </Label>
+                <Input
+                  id="confirm"
+                  type="password"
+                  value={confirm}
+                  onChange={(e) => setConfirm(e.target.value)}
+                  placeholder="Re-enter password"
                   className="mt-1.5 border-2 border-gray-200 focus:border-[#0078d4] h-11"
                   required
                 />
@@ -93,13 +131,13 @@ export function Login() {
               <Button
                 type="submit"
                 disabled={loading}
-                className="w-full h-12 bg-[#e81123] hover:bg-[#c70e1a] text-white font-black text-base mt-2"
+                className="w-full h-12 bg-gray-900 hover:bg-gray-700 text-white font-black text-base mt-2"
                 size="lg"
               >
-                {loading ? 'SIGNING IN...' : (
+                {loading ? 'CREATING ACCOUNT...' : (
                   <>
-                    <LogIn className="mr-2 h-5 w-5" />
-                    SIGN IN
+                    CREATE ACCOUNT
+                    <ArrowRight className="ml-2 h-5 w-5" />
                   </>
                 )}
               </Button>
@@ -107,9 +145,9 @@ export function Login() {
 
             <div className="mt-6 text-center">
               <p className="text-sm text-gray-600">
-                Don't have an account?{' '}
-                <Link to="/register" className="text-[#0078d4] hover:underline font-bold">
-                  Sign up
+                Already have an account?{' '}
+                <Link to="/login" className="text-[#0078d4] hover:underline font-bold">
+                  Sign in
                 </Link>
               </p>
             </div>
@@ -117,7 +155,7 @@ export function Login() {
         </Card>
 
         <p className="text-center text-xs text-gray-400 mt-6">
-          Authentication is powered by the User Service. Your credentials are secured with JWT.
+          By signing up, you agree to our Terms of Service. Your account connects to the User Service to manage authentication.
         </p>
       </div>
     </div>

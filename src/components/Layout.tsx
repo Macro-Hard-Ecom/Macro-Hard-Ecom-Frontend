@@ -1,10 +1,19 @@
 import { Link, Outlet } from 'react-router';
-import { ShoppingCart, LogIn, User, Menu, X } from 'lucide-react';
+import { ShoppingCart, LogIn, LogOut, User, Menu, X, LayoutDashboard } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from './ui/button';
+import { useAuth } from '../lib/auth';
+import { toast } from 'sonner';
 
 export function Layout() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { isAuthenticated, user, logout } = useAuth();
+
+  const handleLogout = () => {
+    logout();
+    toast.success('Signed out successfully');
+    setMobileMenuOpen(false);
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -33,7 +42,7 @@ export function Layout() {
                 Products
               </Link>
               <Link to="/sell" className="px-4 py-2 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200 font-medium">
-                Sell
+                {isAuthenticated ? 'Dashboard' : 'Sell'}
               </Link>
             </nav>
 
@@ -43,17 +52,45 @@ export function Layout() {
                   <ShoppingCart className="h-5 w-5" />
                 </Button>
               </Link>
-              <Link to="/profile">
-                <Button variant="ghost" size="icon" className="hover:bg-green-50 hover:text-[#00a651]">
-                  <User className="h-5 w-5" />
-                </Button>
-              </Link>
-              <Link to="/login">
-                <Button className="bg-[#e81123] hover:bg-[#c70e1a] text-white shadow-md hover:shadow-lg transition-all duration-300 font-bold">
-                  <LogIn className="h-4 w-4 mr-2" />
-                  Sign In
-                </Button>
-              </Link>
+
+              {isAuthenticated ? (
+                <>
+                  <Link to="/profile">
+                    <Button variant="ghost" size="icon" className="hover:bg-green-50 hover:text-[#00a651]">
+                      <User className="h-5 w-5" />
+                    </Button>
+                  </Link>
+                  <Link to="/sell">
+                    <Button variant="ghost" size="sm" className="hover:bg-blue-50 hover:text-[#0078d4] font-semibold text-gray-600 gap-1.5">
+                      <LayoutDashboard className="h-4 w-4" />
+                      {user?.email?.split('@')[0]}
+                    </Button>
+                  </Link>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleLogout}
+                    className="border-2 border-gray-300 hover:border-[#e81123] hover:text-[#e81123] font-bold transition-all"
+                  >
+                    <LogOut className="h-4 w-4 mr-1.5" />
+                    Sign Out
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Link to="/profile">
+                    <Button variant="ghost" size="icon" className="hover:bg-green-50 hover:text-[#00a651]">
+                      <User className="h-5 w-5" />
+                    </Button>
+                  </Link>
+                  <Link to="/login">
+                    <Button className="bg-[#e81123] hover:bg-[#c70e1a] text-white shadow-md hover:shadow-lg transition-all duration-300 font-bold">
+                      <LogIn className="h-4 w-4 mr-2" />
+                      Sign In
+                    </Button>
+                  </Link>
+                </>
+              )}
             </div>
 
             <button
@@ -72,7 +109,7 @@ export function Layout() {
                 Products
               </Link>
               <Link to="/sell" className="block px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors font-medium" onClick={() => setMobileMenuOpen(false)}>
-                Sell
+                {isAuthenticated ? 'Dashboard' : 'Sell'}
               </Link>
               <Link to="/cart" className="block px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors font-medium" onClick={() => setMobileMenuOpen(false)}>
                 Cart
@@ -80,9 +117,18 @@ export function Layout() {
               <Link to="/profile" className="block px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors font-medium" onClick={() => setMobileMenuOpen(false)}>
                 Profile
               </Link>
-              <Link to="/login" className="block px-4 py-3 bg-[#e81123] text-white rounded-lg text-center font-medium shadow-md" onClick={() => setMobileMenuOpen(false)}>
-                Sign In
-              </Link>
+              {isAuthenticated ? (
+                <button
+                  onClick={handleLogout}
+                  className="block w-full text-left px-4 py-3 text-[#e81123] hover:bg-red-50 rounded-lg font-medium"
+                >
+                  Sign Out ({user?.email?.split('@')[0]})
+                </button>
+              ) : (
+                <Link to="/login" className="block px-4 py-3 bg-[#e81123] text-white rounded-lg text-center font-medium shadow-md" onClick={() => setMobileMenuOpen(false)}>
+                  Sign In
+                </Link>
+              )}
             </div>
           </div>
         )}
@@ -113,7 +159,7 @@ export function Layout() {
               <h3 className="font-bold text-white mb-4">Quick Links</h3>
               <ul className="space-y-2">
                 <li><Link to="/products" className="text-gray-400 hover:text-blue-400 transition-colors">Browse Products</Link></li>
-                <li><Link to="/sell" className="text-gray-400 hover:text-blue-400 transition-colors">Start Selling</Link></li>
+                <li><Link to="/sell" className="text-gray-400 hover:text-blue-400 transition-colors">Seller Dashboard</Link></li>
                 <li><Link to="/register" className="text-gray-400 hover:text-blue-400 transition-colors">Create Account</Link></li>
               </ul>
             </div>
