@@ -7,6 +7,9 @@ import { Products } from './pages/Products';
 import { ProductDetail } from './pages/ProductDetail';
 import { Sell } from './pages/Sell';
 import { Register } from './pages/Register';
+import { Cart } from './pages/orderservice/Cart';
+import { Orders } from './pages/orderservice/Orders'; 
+import { OrderDetails } from './pages/orderservice/OrderDetails'; 
 
 export const router = createBrowserRouter([
   {
@@ -21,7 +24,16 @@ export const router = createBrowserRouter([
       { path: 'products/:id', Component: ProductDetail },
       { path: 'sell', Component: Sell },
       { path: 'cart', Component: () => <div className="p-8 text-center text-gray-500">Cart coming soon</div> },
+      { path: 'products', Component: () => <div className="p-8 text-center text-gray-500">Products page coming soon</div> },
+      { path: 'products/:id', Component: () => <div className="p-8 text-center text-gray-500">Product detail coming soon</div> },
+      { path: 'sell', Component: () => <div className="p-8 text-center text-gray-500">Sell page coming soon</div> },
+      { path: 'register', Component: () => <div className="p-8 text-center text-gray-500">Register coming soon</div> },
       { path: '*', Component: () => <div className="p-8 text-center text-gray-500">Page not found</div> },
+      { path: 'cart', Component: Cart },
+      { path: 'orders', Component: Orders },
+      { path: 'orders/:id', Component: OrderDetails },
+      { path: '*', Component: () => <div className="p-8 text-center text-gray-500">Page not found</div> },
+
     ],
   },
 ]);
