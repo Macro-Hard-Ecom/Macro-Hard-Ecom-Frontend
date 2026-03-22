@@ -10,6 +10,7 @@ import { Register } from './pages/Register';
 import { Cart } from './pages/orderservice/Cart';
 import { Orders } from './pages/orderservice/Orders'; 
 import { OrderDetails } from './pages/orderservice/OrderDetails'; 
+import { Payment } from './pages/Payment';
 
 export const router = createBrowserRouter([
   {
@@ -29,6 +30,7 @@ export const router = createBrowserRouter([
       { path: 'cart', Component: Cart },
       { path: 'orders', Component: Orders },
       { path: 'orders/:id', Component: OrderDetails },
+      { path: 'payment/:orderId', Component: Payment },
       { path: '*', Component: () => <div className="p-8 text-center text-gray-500">Page not found</div> },
 
     ],
