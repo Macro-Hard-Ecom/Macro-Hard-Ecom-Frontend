@@ -71,10 +71,10 @@ export const productService = {
 // ── User Service API calls ────────────────────────────────────────────────────
 export const userService = {
   login: (email: string, password: string) =>
-    userApi.post<{ token: string; userId: string; email: string }>('/api/auth/login', { email, password }),
+    userApi.post<{ id: number; token: string; email: string; name: string; role: string }>('/api/auth/login', { email, password }),
 
   register: (name: string, email: string, password: string) =>
-    userApi.post<{ token: string; userId: string; email: string }>('/api/auth/register', { name, email, password }),
+    userApi.post<{ id: number; token: string; email: string; name: string; role: string }>('/api/auth/register', { name, email, password }),
 
   validateToken: (token: string) =>
     userApi.get<boolean>(`/api/auth/validateToken?token=${token}`),
