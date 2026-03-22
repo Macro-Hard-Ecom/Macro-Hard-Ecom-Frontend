@@ -44,6 +44,9 @@ export function Layout() {
               <Link to="/sell" className="px-4 py-2 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200 font-medium">
                 {isAuthenticated ? 'Dashboard' : 'Sell'}
               </Link>
+                <Link to="/orders" className="px-4 py-2 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200 font-medium">
+                Orders
+              </Link>
             </nav>
 
             <div className="hidden md:flex items-center space-x-2">

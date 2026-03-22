@@ -1,32 +1,25 @@
-import { useState } from "react";
+import { useCart } from "../../context/CartContext";
 import { createOrder } from "../../services/orderService";
 
-interface CartItem {
-  productId: string;
-  quantity: number;
-}
-
 export function Cart() {
-  const [items] = useState<CartItem[]>([
-    {
-      productId: "69bed7bdd55fa1a04f1cf48e",
-      quantity: 1,
-    },
-  ]);
+  const { cart, removeFromCart, clearCart } = useCart();
 
   const handleOrder = async () => {
     try {
       const token = localStorage.getItem("token");
-      
-      if (!token) {
-        alert("Please login first");
-        return;
-      }
 
-      const res = await createOrder(items, token);
+      const items = cart.map(item => ({
+        productId: item.productId,
+        quantity: item.quantity,
+      }));
+
+      const res = await createOrder(items, token!);
 
       alert("Order Created!");
-      console.log(res.data);
+
+      clearCart(); 
+      console.log("Order ID:", res.data._id);
+
     } catch (err) {
       console.error(err);
       alert("Order failed");
@@ -35,20 +28,35 @@ export function Cart() {
 
   return (
     <div className="p-8">
-      <h1 className="text-3xl font-bold mb-4">Cart</h1>
+      <h1 className="text-3xl font-bold mb-6">Cart</h1>
 
-      {items.map((item, index) => (
-        <div key={index}>
-          Product: {item.productId} | Qty: {item.quantity}
-        </div>
-      ))}
+      {cart.length === 0 ? (
+        <p>No items in cart</p>
+      ) : (
+        <>
+          {cart.map((item) => (
+            <div key={item.productId} className="border p-4 mb-3">
+              <p>{item.name}</p>
+              <p>Qty: {item.quantity}</p>
+              <p>${item.price}</p>
 
-      <button
-        onClick={handleOrder}
-        className="bg-green-600 text-white px-4 py-2 mt-4"
-      >
-        Place Order
-      </button>
+              <button
+                onClick={() => removeFromCart(item.productId)}
+                className="text-red-500"
+              >
+                Remove
+              </button>
+            </div>
+          ))}
+
+          <button
+            onClick={handleOrder}
+            className="bg-green-600 text-white px-6 py-2 mt-4"
+          >
+            Place Order
+          </button>
+        </>
+      )}
     </div>
   );
 }
