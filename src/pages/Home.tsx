@@ -1,5 +1,5 @@
 import { Link } from 'react-router';
-import { ArrowRight, Package, Shield, Zap, TrendingUp, Users } from 'lucide-react';
+import { ArrowRight, Shield, Zap, TrendingUp, Users } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
 import { mockProducts } from '../data/mockProducts';
@@ -52,9 +52,9 @@ export function Home() {
             <p className="text-xl md:text-2xl mb-4 text-gray-700 max-w-3xl mx-auto font-semibold">
               It's not <span className="line-through text-gray-400">Micro</span><span className="text-[#0078d4] font-black">HARD</span> work.
             </p>
-            
+
             <p className="text-lg md:text-xl mb-10 text-gray-600 max-w-2xl mx-auto">
-              The marketplace with windows of opportunity. Buy, sell, and maximize your potential.
+              Buy and sell electronics, vehicles, property, services, and more — Sri Lanka's hardest working marketplace.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
