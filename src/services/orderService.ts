@@ -17,7 +17,7 @@ export const createOrder = async (items: any[], token: string) => {
 
 // Get All Orders
 export const getOrders = async (token: string) => {
-  return axios.get(`${API_URL}`, {
+  return axios.get(`${API_URL}/orders`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
