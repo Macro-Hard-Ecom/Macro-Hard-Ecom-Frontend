@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://51.21.181.2:5000/api/orders";
+const API_URL = "http://13.51.162.195:5000/api/orders";
 
 //Create Order
 export const createOrder = async (items: any[], token: string) => {
@@ -17,7 +17,7 @@ export const createOrder = async (items: any[], token: string) => {
 
 // Get All Orders
 export const getOrders = async (token: string) => {
-  return axios.get(`${API_URL}/orders`, {
+  return axios.get(`${API_URL}`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
