@@ -4,3 +4,9 @@
 @import "@fontsource-variable/inter";
 
 @custom-variant dark (&:is(.dark *));
+
+button,
+[role="button"],
+a {
+  cursor: pointer;
+}

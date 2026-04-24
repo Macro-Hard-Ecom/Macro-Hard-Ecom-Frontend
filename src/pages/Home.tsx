@@ -1,12 +1,43 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router';
-import { ArrowRight, Shield, Zap, TrendingUp, Users } from 'lucide-react';
+import { ArrowRight, Shield, Zap, TrendingUp, Package } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
-import { mockProducts } from '../data/mockProducts';
+import { productService, type Product } from '../lib/api';
 import { motion } from 'motion/react';
 
+const ACCENT_COLORS = ['#00a651', '#0078d4', '#ffb900', '#e81123'];
+
+const CATEGORY_IMAGES: Record<string, string> = {
+  Electronics: 'https://images.unsplash.com/photo-1550009158-9ebf69173e03?w=400',
+  Vehicles: 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=400',
+  Property: 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=400',
+  Furniture: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=400',
+  Fashion: 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=400',
+  Services: 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=400',
+  'Food & Beverages': 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400',
+  'Sports & Leisure': 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=400',
+  Other: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400',
+};
+
 export function Home() {
-  const featuredProducts = mockProducts.slice(0, 4);
+  const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    productService.getAll()
+      .then((res) => {
+        setTotalCount(res.data.count);
+        // Show only the first 4 as featured
+        setFeaturedProducts(res.data.data.slice(0, 4));
+      })
+      .catch(() => {
+        setFeaturedProducts([]);
+        setTotalCount(0);
+      })
+      .finally(() => setLoading(false));
+  }, []);
 
   return (
     <div>
@@ -77,22 +108,22 @@ export function Home() {
 
             {/* Stats with four colors */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
-              <div className="bg-white p-6 border-l-4 border-[#00a651] shadow-lg">
-                <div className="text-3xl font-black text-gray-900">{mockProducts.length}+</div>
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="bg-white p-6 border-l-4 border-[#00a651] shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+                <div className="text-3xl font-black text-gray-900">{totalCount}+</div>
                 <div className="text-sm text-gray-600 font-semibold">PRODUCTS</div>
-              </div>
-              <div className="bg-white p-6 border-l-4 border-[#0078d4] shadow-lg">
+              </motion.div>
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="bg-white p-6 border-l-4 border-[#0078d4] shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
                 <div className="text-3xl font-black text-gray-900">100%</div>
                 <div className="text-sm text-gray-600 font-semibold">RELIABLE</div>
-              </div>
-              <div className="bg-white p-6 border-l-4 border-[#ffb900] shadow-lg">
+              </motion.div>
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }} className="bg-white p-6 border-l-4 border-[#ffb900] shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
                 <div className="text-3xl font-black text-gray-900">24/7</div>
                 <div className="text-sm text-gray-600 font-semibold">SUPPORT</div>
-              </div>
-              <div className="bg-white p-6 border-l-4 border-[#e81123] shadow-lg">
+              </motion.div>
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }} className="bg-white p-6 border-l-4 border-[#e81123] shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
                 <div className="text-3xl font-black text-gray-900">∞</div>
                 <div className="text-sm text-gray-600 font-semibold">POTENTIAL</div>
-              </div>
+              </motion.div>
             </div>
           </motion.div>
         </div>
@@ -169,64 +200,92 @@ export function Home() {
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-4">
-            <div>
+            <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }}>
               <h2 className="text-4xl font-black text-gray-900 mb-2 tracking-tight">FEATURED</h2>
               <p className="text-gray-600 font-medium">Premium selections from our marketplace</p>
-            </div>
+            </motion.div>
             <Link to="/products">
-              <Button variant="outline" size="lg" className="group border-2 border-[#ffb900] text-[#ffb900] hover:bg-[#ffb900] hover:text-gray-900 font-bold">
+              <Button variant="outline" size="lg" className="group border-2 border-[#ffb900] text-[#ffb900] hover:bg-[#ffb900] hover:text-gray-900 font-bold transition-all duration-300">
                 VIEW ALL
                 <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
               </Button>
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {featuredProducts.map((product, index) => {
-              const colors = ['#00a651', '#0078d4', '#ffb900', '#e81123'];
-              const accentColor = colors[index % 4];
-              
-              return (
-                <motion.div
-                  key={product.id}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.4, delay: index * 0.1 }}
-                >
-                  <Link to={`/products/${product.id}`}>
-                    <Card className="h-full hover:shadow-2xl transition-all duration-300 cursor-pointer group border-0 overflow-hidden bg-white">
-                      <div className="h-1" style={{ backgroundColor: accentColor }}></div>
-                      <div className="relative overflow-hidden bg-gray-100">
-                        <img
-                          src={product.image}
-                          alt={product.name}
-                          className="w-full h-56 object-cover group-hover:scale-110 transition-transform duration-500"
-                        />
-                        {product.price === 0 && (
-                          <div className="absolute top-3 right-3 bg-[#00a651] text-white px-3 py-1 font-black text-xs shadow-lg">
-                            FREE
+          {loading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="bg-white shadow-lg overflow-hidden animate-pulse">
+                  <div className="h-56 bg-gray-200" />
+                  <div className="p-5 space-y-3">
+                    <div className="h-4 bg-gray-200 rounded w-3/4" />
+                    <div className="h-4 bg-gray-200 rounded w-1/2" />
+                    <div className="h-6 bg-gray-200 rounded w-1/3" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : featuredProducts.length === 0 ? (
+            <div className="text-center py-16">
+              <Package className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+              <p className="text-gray-500 font-medium">No products available yet. Check back soon!</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {featuredProducts.map((product, index) => {
+                const accentColor = ACCENT_COLORS[index % 4];
+                const fallbackImg = CATEGORY_IMAGES[product.category] || CATEGORY_IMAGES.Other;
+
+                return (
+                  <motion.div
+                    key={product._id}
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.4, delay: index * 0.1 }}
+                  >
+                    <Link to={`/products/${product._id}`}>
+                      <Card className="h-full hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 cursor-pointer group border-0 overflow-hidden bg-white">
+                        <div className="h-1" style={{ backgroundColor: accentColor }} />
+                        <div className="relative overflow-hidden bg-gray-100">
+                          <img
+                            src={product.imageUrl || fallbackImg}
+                            alt={product.name}
+                            className="w-full h-56 object-cover group-hover:scale-110 transition-transform duration-500"
+                            onError={(e) => { (e.target as HTMLImageElement).src = fallbackImg; }}
+                          />
+                          {!product.isAvailable && (
+                            <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                              <span className="text-white font-black text-lg">SOLD OUT</span>
+                            </div>
+                          )}
+                          <div className="absolute top-3 left-3">
+                            <span className="text-white text-xs font-black px-2 py-1" style={{ backgroundColor: accentColor }}>
+                              {product.category.toUpperCase()}
+                            </span>
                           </div>
-                        )}
-                      </div>
-                      <CardContent className="p-5">
-                        <h3 className="font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-[#0078d4] transition-colors min-h-[3rem]">
-                          {product.name}
-                        </h3>
-                        <p className="font-black text-2xl mb-2" style={{ color: accentColor }}>
-                          ${product.price.toFixed(2)}
-                        </p>
-                        <div className="flex items-center text-gray-500 text-sm">
-                          <Users className="h-3.5 w-3.5 mr-1.5" />
-                          {product.sellerName}
                         </div>
-                      </CardContent>
-                    </Card>
-                  </Link>
-                </motion.div>
-              );
-            })}
-          </div>
+                        <CardContent className="p-5">
+                          <h3 className="font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-[#0078d4] transition-colors min-h-12 text-sm leading-tight">
+                            {product.name}
+                          </h3>
+                          <p className="text-gray-500 text-xs mb-3 line-clamp-2 leading-relaxed">{product.description}</p>
+                          <div className="flex items-center justify-between">
+                            <p className="font-black text-2xl" style={{ color: accentColor }}>
+                              ${product.price.toFixed(2)}
+                            </p>
+                            {product.stock > 0 && (
+                              <span className="text-xs text-gray-400 font-semibold">{product.stock} left</span>
+                            )}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </Link>
+                  </motion.div>
+                );
+              })}
+            </div>
+          )}
         </div>
       </section>
 
@@ -251,7 +310,7 @@ export function Home() {
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
               >
-                <Card className="border-0 shadow-lg h-full bg-white overflow-hidden">
+                <Card className="border-0 shadow-lg h-full bg-white overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
                   <div className="h-2" style={{ backgroundColor: testimonial.color }}></div>
                   <CardContent className="pt-6 pb-6 px-6">
                     <div className="flex items-center mb-4">
