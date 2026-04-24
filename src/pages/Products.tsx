@@ -95,51 +95,49 @@ export function Products() {
 
       {/* Filters */}
       <section className="bg-white border-b border-gray-200 sticky top-16 z-40 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex flex-col md:flex-row gap-4 items-start md:items-center">
-            {/* Search */}
-            <div className="relative flex-1 max-w-md">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 space-y-4">
+          {/* Row 1: Search + Available toggle */}
+          <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
+            <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input
                 placeholder="Search listings..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="pl-10 border-2 border-gray-200 focus:border-[#0078d4] h-11"
+                className="pl-10 border-2 border-gray-200 focus:border-[#0078d4] h-11 w-full"
               />
             </div>
-
-            {/* Category pills */}
-            <div className="flex flex-wrap gap-2">
-              <button
-                onClick={() => setSelectedCategory('')}
-                className={`px-4 py-2 text-sm font-bold transition-all ${selectedCategory === '' ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
-              >
-                ALL
-              </button>
-              {CATEGORIES.map((cat) => (
-                <button
-                  key={cat}
-                  onClick={() => setSelectedCategory(cat === selectedCategory ? '' : cat)}
-                  className="px-4 py-2 text-sm font-bold transition-all"
-                  style={
-                    selectedCategory === cat
-                      ? { backgroundColor: CATEGORY_COLORS[cat], color: '#fff' }
-                      : { backgroundColor: '#f3f4f6', color: '#374151' }
-                  }
-                >
-                  {cat.toUpperCase()}
-                </button>
-              ))}
-            </div>
-
-            {/* Available toggle */}
             <button
               onClick={() => setAvailableOnly(!availableOnly)}
-              className={`flex items-center gap-2 px-4 py-2 text-sm font-bold border-2 transition-all ${availableOnly ? 'border-[#00a651] bg-[#00a651] text-white' : 'border-gray-300 text-gray-600 hover:border-[#00a651]'}`}
+              className={`flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-bold border-2 transition-all shrink-0 ${availableOnly ? 'border-[#00a651] bg-[#00a651] text-white' : 'border-gray-300 text-gray-600 hover:border-[#00a651]'}`}
             >
               <Filter className="h-4 w-4" />
               AVAILABLE ONLY
             </button>
+          </div>
+
+          {/* Row 2: Category pills */}
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => setSelectedCategory('')}
+              className={`px-4 py-2 text-xs font-bold transition-all rounded-sm ${selectedCategory === '' ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+            >
+              ALL
+            </button>
+            {CATEGORIES.map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setSelectedCategory(cat === selectedCategory ? '' : cat)}
+                className="px-4 py-2 text-xs font-bold transition-all rounded-sm"
+                style={
+                  selectedCategory === cat
+                    ? { backgroundColor: CATEGORY_COLORS[cat], color: '#fff' }
+                    : { backgroundColor: '#f3f4f6', color: '#374151' }
+                }
+              >
+                {cat.toUpperCase()}
+              </button>
+            ))}
           </div>
         </div>
       </section>

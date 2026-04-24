@@ -1,5 +1,5 @@
 import { Link, Outlet } from 'react-router';
-import { ShoppingCart, LogIn, LogOut, User, Menu, X, LayoutDashboard } from 'lucide-react';
+import { ShoppingCart, LogIn, LogOut, User, Menu, X } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from './ui/button';
 import { useAuth } from '../lib/auth';
@@ -20,7 +20,8 @@ export function Layout() {
       <header className="bg-white/80 backdrop-blur-md border-b border-gray-200 sticky top-0 z-50 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <Link to="/" className="flex items-center space-x-3 group">
+            {/* Logo */}
+            <Link to="/" className="flex items-center space-x-3 group shrink-0">
               <div className="relative">
                 <div className="w-10 h-10 grid grid-cols-2 gap-0.5 p-0.5 bg-gray-900 group-hover:rotate-180 transition-transform duration-500">
                   <div className="bg-[#00a651]"></div>
@@ -37,16 +38,18 @@ export function Layout() {
               </div>
             </Link>
 
-            <nav className="hidden md:flex space-x-1">
+            {/* Center nav */}
+            <nav className="hidden md:flex items-center justify-center flex-1 space-x-1">
               <Link to="/products" className="px-4 py-2 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200 font-medium">
                 Products
               </Link>
               <Link to="/sell" className="px-4 py-2 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200 font-medium">
-                {isAuthenticated ? 'Dashboard' : 'Sell'}
+                My Listings
               </Link>
             </nav>
 
-            <div className="hidden md:flex items-center space-x-2">
+            {/* Right actions */}
+            <div className="hidden md:flex items-center space-x-2 shrink-0">
               <Link to="/cart">
                 <Button variant="ghost" size="icon" className="hover:bg-yellow-50 hover:text-[#ffb900]">
                   <ShoppingCart className="h-5 w-5" />
@@ -56,14 +59,9 @@ export function Layout() {
               {isAuthenticated ? (
                 <>
                   <Link to="/profile">
-                    <Button variant="ghost" size="icon" className="hover:bg-green-50 hover:text-[#00a651]">
-                      <User className="h-5 w-5" />
-                    </Button>
-                  </Link>
-                  <Link to="/sell">
-                    <Button variant="ghost" size="sm" className="hover:bg-blue-50 hover:text-[#0078d4] font-semibold text-gray-600 gap-1.5">
-                      <LayoutDashboard className="h-4 w-4" />
-                      {user?.email?.split('@')[0]}
+                    <Button variant="ghost" size="sm" className="hover:bg-green-50 hover:text-[#00a651] font-semibold text-gray-600 gap-1.5">
+                      <User className="h-4 w-4" />
+                      {user?.name || user?.email?.split('@')[0]}
                     </Button>
                   </Link>
                   <Button
@@ -109,21 +107,23 @@ export function Layout() {
                 Products
               </Link>
               <Link to="/sell" className="block px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors font-medium" onClick={() => setMobileMenuOpen(false)}>
-                {isAuthenticated ? 'Dashboard' : 'Sell'}
+                My Listings
               </Link>
               <Link to="/cart" className="block px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors font-medium" onClick={() => setMobileMenuOpen(false)}>
                 Cart
               </Link>
-              <Link to="/profile" className="block px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors font-medium" onClick={() => setMobileMenuOpen(false)}>
-                Profile
-              </Link>
               {isAuthenticated ? (
-                <button
-                  onClick={handleLogout}
-                  className="block w-full text-left px-4 py-3 text-[#e81123] hover:bg-red-50 rounded-lg font-medium"
-                >
-                  Sign Out ({user?.email?.split('@')[0]})
-                </button>
+                <>
+                  <Link to="/profile" className="block px-4 py-3 text-gray-700 hover:bg-green-50 hover:text-[#00a651] rounded-lg transition-colors font-medium" onClick={() => setMobileMenuOpen(false)}>
+                    <span className="flex items-center gap-2"><User className="h-4 w-4" /> {user?.name || user?.email?.split('@')[0]}</span>
+                  </Link>
+                  <button
+                    onClick={handleLogout}
+                    className="block w-full text-left px-4 py-3 text-[#e81123] hover:bg-red-50 rounded-lg font-medium"
+                  >
+                    Sign Out
+                  </button>
+                </>
               ) : (
                 <Link to="/login" className="block px-4 py-3 bg-[#e81123] text-white rounded-lg text-center font-medium shadow-md" onClick={() => setMobileMenuOpen(false)}>
                   Sign In

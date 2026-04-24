@@ -63,6 +63,16 @@ export interface UserProfile {
   email: string;
   role: string;
   totalListings: number;
+  totalOrders: number;
+  recentPayments: RecentPayment[];
+}
+
+export interface RecentPayment {
+  id: number;
+  amount: number;
+  status: string;
+  createdAt: string;
+  [key: string]: unknown;
 }
 
 // ── Product Service API calls ─────────────────────────────────────────────────
@@ -99,6 +109,12 @@ export const userService = {
 
   getProfile: (id: number) =>
     userApi.get<UserProfile>(`/api/users/${id}/profile`),
+
+  updateProfile: (id: number, data: { name: string; email: string }) =>
+    userApi.put<UserProfile>(`/api/users/${id}`, data),
+
+  changePassword: (id: number, data: { currentPassword: string; newPassword: string; confirmPassword: string }) =>
+    userApi.put<{ message: string }>(`/api/users/${id}/change-password`, data),
 };
 
 export const CATEGORIES = [
