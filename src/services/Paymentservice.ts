@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const PAYMENT_API_URL = import.meta.env.VITE_PAYMENT_SERVICE_URL || "http://3.89.71.141:8084/api/payments";
+const PAYMENT_API_URL = import.meta.env.VITE_PAYMENT_SERVICE_URL || "http://3.80.46.136:8084/api/payments";
 
 // Process a payment for an order
 export const processPayment = async (

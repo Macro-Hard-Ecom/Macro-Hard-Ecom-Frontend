@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://51.21.181.2:5000/api/orders";
+const API_URL = "http://13.51.162.195:5000/api/orders";
 
 //Create Order
 export const createOrder = async (items: any[], token: string) => {
