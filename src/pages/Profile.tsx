@@ -57,8 +57,8 @@ export function Profile() {
     }
     setSaving(true);
     try {
-      const res = await userService.updateProfile(profile.id, { name: editName.trim(), email: editEmail.trim() });
-      setProfile(res.data);
+      await userService.updateProfile(profile.id, { name: editName.trim(), email: editEmail.trim() });
+      setProfile((prev) => prev ? { ...prev, name: editName.trim(), email: editEmail.trim() } : prev);
       setEditing(false);
       toast.success('Profile updated successfully');
     } catch (err: unknown) {
